@@ -14,6 +14,11 @@
         "dev": "concurrently \"npm run client\" \"npm run sever\"",
         "heroku-postbuild": "cd client && npm install && npm run build"
     },
+    "engines": {
+        "node": "12.16.x",
+        "npm": "6.x"
+
+    },
     "keywords": [],
     "author": "",
     "license": "ISC",
