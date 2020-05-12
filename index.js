@@ -8,7 +8,17 @@ app.use(bodyParser.json());
 //routes
 const employee = require('./routes/employee');
 app.use('/employee', employee);
-mongoose.connect('mongodb://localhost:27017/mren', {
+
+if (process.env.NODE_ENV === 'production') {
+    app.use(express.static('client/build'));
+    app.get('*', (req, res) => {
+        res.sendfile(path.join(__dirname, 'client', 'build', 'index.html'));
+    });
+}
+
+
+const uri = process.env.mongodb || "mongodb://localhost:27017/mren";
+mongoose.connect(uri, {
     useNewUrlParser: true,
     useFindAndModify: false
 
