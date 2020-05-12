@@ -1,135 +1,143 @@
 import React from 'react';
 import EmployeeTable from './components/EmployeeTable';
-import Form from './components/EmployeeTable';
-import Message from './components/EmployeeTable';
-import EmployeeAPI from './EmployeeAPi';
+import Form from './components/Form';
+import Message from './components/Message';
+import EmployeeAPI from './EmployeeAPI';
 
-class App extends React.Component {
-        constructor(props) {
-            super(props);
-            this.state = {
-                employees: [],
-                isEditForm: {
-                    fristName: "",
-                    lastName: "",
-                    salary: "",
-                    job: "",
+class App extends React.Component{
+    constructor(props){
+        super(props);
+        this.state = {
+            employees : [],
+            isEditForm : false,
+            employee : {
+                firstName : "",
+                lastName : "",
+                salary : "",
+                job : ""
+            },
+            message : ""
+        };
 
-                },
-                message: ""
-            };
-            this.deleteHandler = this.deleteHandler.bind(this);
-            this.addHandler = this.addHandler.bind(this);
-            this.updateHandler = this.updateHandler.bind(this);
-            this.handleChange = this.handleChange.bind(this);
-            this.sowEditForm = this.sowEditForm.bind(this);
+        this.deleteHandler = this.deleteHandler.bind(this);
+        this.addHandler = this.addHandler.bind(this);
+        this.updateHandler = this.updateHandler.bind(this);
+        this.handleChange = this.handleChange.bind(this);
+        this.showEditForm = this.showEditForm.bind(this);
+    }
 
+    componentDidMount(){
+        EmployeeAPI.getEmployees().then(data=>{
+            console.log(data);
+            this.setState({employees : data.response})});
+    }
 
-        }
-        componentDidMount() {
-            EmployeeAPI.getEmployess().then(data => { this.setState({ employees: data.response }) });
-        }
-
-        restForm() {
-            this.setState({
-                employee: {
-                    fristName: "",
-                    lastName: "",
-                    salary: "",
-                    job: "",
-                }
-            });
-        }
-        handleChange(e) {
-            this.setState({
-                employee: {
-                    ...this.state.employee,
-                    [e.target.name]: e.target.value
-                }
-            });
-        }
-        showEditForm(employee) {
-            this.setState({
-                isEditForm: true,
-                employee: employee
-            });
-        }
-
-        async deleteHandler(is) {
-            const deleteData = await EmployeeAPI.deleteEmployee(id);
-            const message = deleteData.message;
-            if (message.msgError) {
-                this.setState({ message });
-            } else {
-                const data = await EmployeeAPI.getEmployess();
-                this.setState({ message, employees: data.response });
+    resetForm(){
+        this.setState({
+            employee: {
+                firstName : "",
+                lastName : "",
+                salary : "",
+                job : ""
             }
-        }
+        });
+    }
 
-        async updateHandler(e) {
-            e.preventDefault();
-            const updateData = await EmployeeAPI.deleteEmployee(this.state.employee);
-            const message = updateData.message;
-            if (message.msgError) {
-                this.setState({ message });
-            } else {
-                const data = await EmployeeAPI.getEmployess();
-                this.setState({ message, employees: data.response });
+    handleChange(e){
+        this.setState({
+            employee : {
+                ...this.state.employee,
+                [e.target.name] : e.target.value
             }
-            this.setState({ isEditForm: false });
-            this.restForm();
+        });
+    }
+
+    showEditForm(employee){
+        this.setState({isEditForm : true, employee : employee});
+    }
+
+    async deleteHandler(id){
+        const deleteData = await EmployeeAPI.deleteEmployee(id);
+        const message = deleteData.message;
+        if(message.msgError){
+            this.setState({message});
         }
-
-        async addHandler(e) {
-            e.preventDefault();
-            const postData = await EmployeeAPI.createEmployee(this.state.employee);
-            const message = post.message;
-            if (message.msgError) {
-                this.setState({ message });
-            } else {
-                const data = await EmployeeAPI.getEmployess();
-                this.setState({ message, employees: data.response });
-            }
-            this.restForm();
+        else{
+            const data = await EmployeeAPI.getEmployees();
+            this.setState({message,employees : data.response})
         }
+    }
 
-        renserEmployeeTable() {
-                if (this.state.employees.length > 0) {
-                    return ( <EmployeeTable employees = { this.state.employees }
-                        deleteHandler = { this.deleteHandler }
-                        showEditForm = { this.showEditForm }
-                        />);
-                    }
-                    return null;
-                }
+    async updateHandler(e){
+        e.preventDefault();
+        const updateData = await EmployeeAPI.updateEmployee(this.state.employee);
+        const message = updateData.message;
+        if(message.msgError){
+            this.setState({message});
+        }
+        else{
+            const data = await EmployeeAPI.getEmployees();
+            this.setState({message,employees : data.response})
+        }
+        this.setState({isEditForm: false});
+        this.resetForm();
+    }
 
-                renderForm() {
-                    return ( <Form isEditForm = { this.sate.isEditForm }
-                        employee = { this.state.employee }
-                        handleChange = { this.handleChange }
-                        handler = {!this.state.isEditForm ? this.addHandler : this.updateHandler }
-                        />
-                    );
-                }
-                renderMessage() {
-                    if (this.state.message === "") {
-                        return null;
-                    }
-                    return ( < Message message = { this.state.message }
-                        />)
-                    };
+    async addHandler(e){
+        e.preventDefault();
+        const postData = await EmployeeAPI.createEmployee(this.state.employee);
+        const message = postData.message;
+        if(message.msgError){
+            this.setState({message});
+        }
+        else{
+            const data = await EmployeeAPI.getEmployees();
+            this.setState({message,employees : data.response});
+        }
+        this.resetForm();
+    }
 
+    renderEmployeeTable(){
+        if(this.state.employees.length > 0){
+            return(
+                <EmployeeTable employees={this.state.employees}
+                               deleteHandler={this.deleteHandler}
+                               showEditForm={this.showEditForm}/>
+            );
+        }
+        return null;
+    }
 
-                    render() {
-                        return ( <div className = "row" >
-                            <div className = "col" > < /div>
-                            <div className = "col-10" > {
-                                this.renserEmployeeTable() }
-                                 { this.renderForm() }
-                                  { this.renderMessage() }
-                            </div>
-                              <div className = "col" > </div> </div>
-                        )
-                    }
+    renderForm(){
+       return(
+           <Form isEditForm={this.state.isEditForm}
+                 employee={this.state.employee}
+                 handleChange={this.handleChange}
+                 handler={!this.state.isEditForm ? this.addHandler : this.updateHandler}/>
+       );
+    }
 
-                }
+    renderMessage(){
+        if(this.state.message === "")
+            return null;
+        return(
+            <Message message={this.state.message}/>
+        );
+    }
+
+    render(){
+        return(
+            <div className="row">
+                <div className="col"></div>
+                <div className="col-10">
+                    {this.renderEmployeeTable()}
+                    {this.renderForm()}
+                    {this.renderMessage()}
+                </div>
+                <div className="col"></div>
+            </div>
+        )
+    }
+}
+
+export default App;
