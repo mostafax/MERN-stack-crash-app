@@ -30,7 +30,7 @@ mongoose.connect(uri, {
         console.log("Succefly added to the db");
     }
 });
-
+//0wlrlrGc0McyuSkA
 const port = process.env.PORT || 5000;
 app.listen(port, () => {
     console.log("App is running");
